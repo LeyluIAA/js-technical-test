@@ -1,20 +1,49 @@
 <template>
   <div class="main">
-        <div class="nav"><h1 class="issue_title">Title</h1></div>
+        <div class="nav"><h1 class="issue_title">{{issue_title}} - {{issue_url}}</h1></div>
         <div class="body">
             <div class="speakers">
 
             </div>
             <div class="conversation">
-
+                {{comments}}
             </div>
         </div> 
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
-  name: 'Home'
+    name: 'Home',
+    data: function (){
+        return {
+            issue_url: prompt('please enter the issue URL'),
+            issue_title: 'default title',
+            comments: {}
+        }
+    },
+    created: function () {
+        let tab = this.issue_url.split('/');
+        let issue_for_title = 'https://api.github.com/repos/' + tab[3] + '/' + tab[4] + '/' + tab [5] + '/' + tab[6];
+        axios.get(issue_for_title).then(response => {
+            this.issue_title = response.data.title;
+            console.error('get this title', this.issue_title);
+        }).catch(error => {
+            console.error('error on requesting API: ', error);
+        });
+        this.issue_url = issue_for_title + '/comments';
+        axios.get(this.issue_url).then(response => {
+            this.comments = response.data;
+            console.error('get this ', this.comments);
+        }).catch(error => {
+            console.error('error on requesting API: ', error);
+        });
+
+    },
+    methods: {
+
+    }
 }
 </script>
 
